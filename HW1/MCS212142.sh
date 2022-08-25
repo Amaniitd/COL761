@@ -4,7 +4,7 @@ ofile=$4
 
 if [ "$1" = "-plot" ];
 then
-  python3 plot.py $ifile
+  python3 plot.py $ifile $sup
 elif [ "$1" = "-apriori" ];
   then 
   ./apriori.o $ifile $sup $ofile 
