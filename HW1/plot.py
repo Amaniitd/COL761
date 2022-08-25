@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 inpname = sys.argv[1]
 outputFile = sys.argv[2]
 
-sup_list = [1,5,10,25,50,90]
+sup_list = [5,10,25,50,90]
 apriori_list = []
 fp_list = []
 
