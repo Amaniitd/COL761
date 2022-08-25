@@ -48,7 +48,7 @@ public:
     int support;
     vector<vector<string>> frequent_itemsets;
     Node* root;
-    map<string, vector<Node*>> lists;
+    map<string, pair<vector<Node*>, int>> lists;
     
     // checking if item is present in itemset "child"
     int find(vector<Node*> &child, string item){
@@ -64,6 +64,7 @@ public:
 
     FPTree(){
         root = new Node();
+        this->support = 1;
     }
     FPTree(int support){
         this->support = support;
@@ -72,42 +73,14 @@ public:
 
     // insert "itemset" into the FPtree
     // the "itemset" should be already sorted
-    void insert(vector<string> &itemset){ 
-
-        Node *node = root;
-
-        for(int i=0; i<itemset.size(); ++i){
-            //cout<<"itemset[i]"<<" ";
-            int idx = find(node->child, itemset[i]);
-
-            Node *temp;
-            if(idx < 0){
-                temp = new Node(itemset[i], node);
-                node->child.push_back(temp);
-
-                if(lists.find(temp->item)==lists.end()){
-                    lists[temp->item] = vector<Node*>();
-                }
-                lists[temp->item].push_back(temp);
-                
-            }else{
-                temp = node->child[idx];
-                temp->count++;
-            }
-
-            node = temp;
-
-        }
-
-    }
-    void insert(vector<string> &itemset, int counter)
+    // CHANGES: also passing counter as an argument -> helps while recursively building fptree
+    void insert(vector<string> &itemset, int counter) 
     {
 
         Node *node = root;
 
         for (int i = 0; i < itemset.size(); ++i)
         {
-            // cout<<"itemset[i]"<<" ";
             int idx = find(node->child, itemset[i]);
 
             Node *temp;
@@ -118,16 +91,16 @@ public:
 
                 if (lists.find(temp->item) == lists.end())
                 {
-                    lists[temp->item] = vector<Node *>();
+                    lists[temp->item] = {vector<Node *>(), 0};
                 }
-                lists[temp->item].push_back(temp);
+                lists[temp->item].first.push_back(temp);
             }
             else
             {
                 temp = node->child[idx];
                 temp->count += counter;
             }
-
+            lists[temp->item].second += counter;
             node = temp;
         }
     }
@@ -159,12 +132,12 @@ public:
 
         for(auto itr: lists){
             cout<<itr.first<<" : ";
-            for(auto p: itr.second){
+            for(auto p: itr.second.first){
                 cout<<p->id<<' ';
             }
+            cout << itr.second.first[0]->count << endl;
             cout<<endl;
         }
-
     }
 };
 
@@ -190,8 +163,9 @@ void splitString(string line, char delimiter, vector<string> &v){
 
 // generate 1-itemset
 // the 1-itemset are mapped in oIS that is passed as reference
-void makeOneItemsetSupport(unordered_map<string, int> &oIS , string filename){
-    
+// also return size of the input file
+int makeOneItemsetSupport(unordered_map<string, int> &oIS , string filename){
+    int size = 0;
     fstream f;
     f.open(filename);
 
@@ -199,6 +173,7 @@ void makeOneItemsetSupport(unordered_map<string, int> &oIS , string filename){
         string line;
         while(getline(f, line)){
             vector<string> temp;
+            size++;
             splitString(line, ' ', temp);
             for(int i=0;i<temp.size();++i){
                 if(oIS.find(temp[i])==oIS.end()){
@@ -212,6 +187,7 @@ void makeOneItemsetSupport(unordered_map<string, int> &oIS , string filename){
     }
 
     f.close();
+    return size;
 }
 
 // sort itemset based on their frequency in 1-itemset
@@ -223,8 +199,8 @@ bool SORT_ITEMSET(string a, string b, unordered_map<string,int> &oIS){
 }
 
 // generate FPTree using 1-itemset
-FPTree* generateFPTree(unordered_map<string, int> &oIS, vector<pair<string, int>> &oISList, string filename){
-    FPTree *tree = new FPTree();
+FPTree* generateFPTree(unordered_map<string, int> &oIS, vector<pair<string, int>> &oISList, string filename, int support){
+    FPTree *tree = new FPTree(support); 
     fstream f;
     f.open(filename);
 
@@ -235,11 +211,7 @@ FPTree* generateFPTree(unordered_map<string, int> &oIS, vector<pair<string, int>
             splitString(line, ' ', temp);
             
             sort(temp.begin(), temp.end(), bind(SORT_ITEMSET,std::placeholders::_1,std::placeholders::_2, oIS));
-            // for(int i=0;i<temp.size();++i){
-            //     cout<<temp[i]<<"-";
-            // }
-            // cout<<endl;
-            tree->insert(temp);
+            tree->insert(temp, 1);
         }
     }
 
@@ -248,9 +220,9 @@ FPTree* generateFPTree(unordered_map<string, int> &oIS, vector<pair<string, int>
     return tree;
 }
 
-
+// Function to check if the tree is linear
 bool _IsSinglePath(Node *node){
-    if(!node)
+    if(node == NULL || node->child.size() == 0)
         return true;
     if (node->child.size() > 1)
     {
@@ -258,12 +230,12 @@ bool _IsSinglePath(Node *node){
     }
     return _IsSinglePath(node->child[0]);
 }
-
+// Function to check if the tree is linear
 bool _IsSinglePath(FPTree* tree){
     return _IsSinglePath(tree->root);
 }
 
-
+// Generate all the subsets (non-empty) of a given set
 vector<vector<string>> PowerSet(vector<string> &v){
     vector<vector<string>> result;
     int n = v.size();
@@ -282,6 +254,7 @@ vector<vector<string>> PowerSet(vector<string> &v){
     return result;
 }
 
+// Extract the path from the root to given node.
 vector<string> _getPath(Node *node)
 {
     vector<string> result;
@@ -295,6 +268,7 @@ vector<string> _getPath(Node *node)
     return result;
 }
 
+// FP Growth algorithm
 void FPgrowth(FPTree *fptree)
 {
     if (fptree == NULL || fptree->root == NULL || fptree->root->child.size() == 0)
@@ -307,7 +281,7 @@ void FPgrowth(FPTree *fptree)
         Node* node = fptree->root;
         while(node->child.size()){
             node = node->child[0];
-            if(node->count > fptree->support){
+            if(node->count >= fptree->support){
                 transaction.push_back(node->item);
             }else{
                 break;
@@ -320,8 +294,9 @@ void FPgrowth(FPTree *fptree)
     for (auto itr : fptree->lists)
     {
         const string& Item = itr.first;
-        vector<Node*>& nodes = itr.second;
-        if (nodes[0]->count < fptree->support)
+        vector<Node*>& nodes = itr.second.first;
+        int count = itr.second.second;
+        if (count < fptree->support) 
         {
             continue;
         }
@@ -342,15 +317,18 @@ void FPgrowth(FPTree *fptree)
     }
 }
 
-int main(){
-    
-    string filename = "test.txt";
+int main(int argc, char **argv)
+{
+
+    string filename = argv[1];
+    int percent_support = atoi(argv[2]);
+    string output_file = argv[3];
     FPTree *tree;
     
     unordered_map<string, int> oIS; 
     // makeOneItemsetSupport stores the 1-itemset in oIS
-    makeOneItemsetSupport(oIS, filename);
-
+    int size = makeOneItemsetSupport(oIS, filename);
+    int support = (size * percent_support) / 100 + (bool)((size * percent_support) % 100);
     // push pair of <itemset, frequecy> in oISList
     vector<pair<string, int>> oISList;
     for(auto itr: oIS){
@@ -363,12 +341,34 @@ int main(){
     });
 
     // generateFPTree
-    tree = generateFPTree(oIS, oISList, filename);
+    tree = generateFPTree(oIS, oISList, filename, support); 
 
-    tree->display();
+    // tree->display();
     // for(auto itr: oISList){
     //     cout<<itr.first<<' '<<itr.second<<endl;
     // }
 
-
+    FPgrowth(tree);
+    for(auto &itr: tree->frequent_itemsets){
+        sort(itr.begin(), itr.end());
+    }
+    sort(tree->frequent_itemsets.begin(), tree->frequent_itemsets.end());
+    // for (auto &itr : tree->frequent_itemsets)
+    // {
+    //     for (auto &itr2 : itr)
+    //     {
+    //         cout << itr2 << ' ';
+    //     }
+    //     cout << endl;
+    // }
+    ofstream ofs(output_file);
+    for (auto &itemset : tree->frequent_itemsets)
+    {
+        for (auto &itr : itemset)
+        {
+            ofs << itr << ' ';
+        }
+        ofs << endl;
+    }
+    ofs.close();
 }
