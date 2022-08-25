@@ -1,2 +1,2 @@
-g++ fptree.cpp -o fptree.o
-g++ apriori.cpp -o apriori.o
+g++ -O3 fptree.cpp -o fptree.o
+g++ -O3 apriori.cpp -o apriori.o
