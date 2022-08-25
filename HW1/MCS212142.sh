@@ -2,16 +2,15 @@ ifile=$2;
 sup=$3;
 ofile=$4
 
-secondarg=$2;
 if [ "$1" = "-plot" ];
 then
-  python3 Plot.py $ifile
+  python3 plot.py $ifile
 elif [ "$1" = "-apriori" ];
   then 
-  ./apriori $ifile $sup $ofile 
+  ./apriori.o $ifile $sup $ofile 
 elif [ "$1" = "-fptree" ];
   then 
-  ./fptree $ifile $sup $ofile 
+  ./fptree.o $ifile $sup $ofile 
 else
   echo "Incorrect arguments" 
 fi
