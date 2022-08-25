@@ -232,6 +232,71 @@ bool SORT_ITEMSET(string a, string b, unordered_map<string, int> &oIS)
     return oIS[a] > oIS[b];
 }
 
+
+
+void MergeSortedIntervals(vector<string>& v, int s, int m, int e, unordered_map<string, int> &oIS) {
+	
+    // temp is used to temporary store the vector obtained by merging
+    // elements from [s to m] and [m+1 to e] in v
+	vector<string> temp;
+
+	int i, j;
+	i = s;
+	j = m + 1;
+
+	while (i <= m && j <= e) {
+
+		if (oIS[v[i]] == oIS[v[j]]) {
+            if(v[i]>v[j]){
+                temp.push_back(v[i]);
+			    ++i;
+            }
+            else{
+                temp.push_back(v[j]);
+			    ++j;
+            }
+		}
+		else if(oIS[v[i]] > oIS[v[j]]){
+			temp.push_back(v[i]);
+			++i;
+		}
+        else{
+            temp.push_back(v[j]);
+			++j;
+        }
+
+	}
+
+	while (i <= m) {
+		temp.push_back(v[i]);
+		++i;
+	}
+
+	while (j <= e) {
+		temp.push_back(v[j]);
+		++j;
+	}
+
+	for (int i = s; i <= e; ++i)
+		v[i] = temp[i - s];
+
+}
+
+// the MergeSort function
+// Sorts the array in the range [s to e] in v using
+// merge sort algorithm
+void MergeSort(vector<string>& v, int s, int e, unordered_map<string, int> &oIS) {
+	if (s < e) {
+		int m = (s + e) / 2;
+		MergeSort(v, s, m, oIS);
+		MergeSort(v, m + 1, e, oIS);
+		MergeSortedIntervals(v, s, m, e, oIS);
+	}
+}
+
+
+
+
 // generate FPTree using 1-itemset
 FPTree *generateFPTree(unordered_map<string, int> &oIS, vector<pair<string, int>> &oISList, string filename, int support)
 {
@@ -254,7 +319,7 @@ FPTree *generateFPTree(unordered_map<string, int> &oIS, vector<pair<string, int>
                 }
             }
 
-            sort(temp2.begin(), temp2.end(), bind(SORT_ITEMSET, std::placeholders::_1, std::placeholders::_2, oIS));
+            MergeSort(temp2, 0, temp2.size() - 1, oIS);
             tree->insert(temp2, 1);
         }
     }
