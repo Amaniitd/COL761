@@ -21,6 +21,7 @@ public:
     int count;
     Node *parent;
     vector<Node *> child;
+    map<string, int> present;
     int id;
     Node()
     {
@@ -69,6 +70,14 @@ public:
         return -1;
     }
 
+    // checking if item is present in itemset "child"
+    int find(map<string,int> &present, string item)
+    {
+        if(present.find(item)==present.end())
+            return -1;
+        return present[item];
+    }
+
 public:
     FPTree()
     {
@@ -91,13 +100,14 @@ public:
 
         for (int i = 0; i < itemset.size(); ++i)
         {
-            int idx = find(node->child, itemset[i]);
+            int idx = find(node->present, itemset[i]);
 
             Node *temp;
             if (idx < 0)
             {
                 temp = new Node(itemset[i], counter, node);
                 node->child.push_back(temp);
+                node->present[itemset[i]] = node->child.size() - 1;
 
                 if (lists.find(temp->item) == lists.end())
                 {
@@ -235,10 +245,17 @@ FPTree *generateFPTree(unordered_map<string, int> &oIS, vector<pair<string, int>
         while (getline(f, line))
         {
             vector<string> temp;
+            vector<string> temp2;
             splitString(line, ' ', temp);
 
-            sort(temp.begin(), temp.end(), bind(SORT_ITEMSET, std::placeholders::_1, std::placeholders::_2, oIS));
-            tree->insert(temp, 1);
+            for(int i=0;i<temp.size();++i){
+                if(oIS[temp[i]]>=support){
+                    temp2.push_back(temp[i]);
+                }
+            }
+
+            sort(temp2.begin(), temp2.end(), bind(SORT_ITEMSET, std::placeholders::_1, std::placeholders::_2, oIS));
+            tree->insert(temp2, 1);
         }
     }
 
