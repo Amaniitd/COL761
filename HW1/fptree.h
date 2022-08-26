@@ -298,7 +298,7 @@ void MergeSort(vector<string>& v, int s, int e, unordered_map<string, int> &oIS)
 
 
 // generate FPTree using 1-itemset
-FPTree *generateFPTree(unordered_map<string, int> &oIS, vector<pair<string, int>> &oISList, string filename, int support)
+FPTree *generateFPTree(unordered_map<string, int> &oIS, string filename, int support)
 {
     FPTree *tree = new FPTree(support);
     fstream f;
@@ -314,7 +314,7 @@ FPTree *generateFPTree(unordered_map<string, int> &oIS, vector<pair<string, int>
             splitString(line, ' ', temp);
 
             for(int i=0;i<temp.size();++i){
-                if(oIS[temp[i]]>=support){
+                if(oIS[temp[i]]>=support && temp[i].size() > 0){
                     temp2.push_back(temp[i]);
                 }
             }
@@ -445,19 +445,10 @@ void doFptree(string filename, int percent_support)
     // makeOneItemsetSupport stores the 1-itemset in oIS
     int size = makeOneItemsetSupport(oIS, filename);
     int support = (size * percent_support) / 100 + (bool)((size * percent_support) % 100);
-    // push pair of <itemset, frequecy> in oISList
-    vector<pair<string, int>> oISList;
-    for (auto itr : oIS)
-    {
-        oISList.push_back(make_pair(itr.first, itr.second));
-    }
-
-    // sort oISList by descending order of frequency
-    sort(oISList.begin(), oISList.end(), [&](pair<string, int> a, pair<string, int> b)
-         { return a.second > b.second; });
+    
 
     // generateFPTree
-    tree = generateFPTree(oIS, oISList, filename, support);
+    tree = generateFPTree(oIS, filename, support);
 
     // tree->display();
     // for(auto itr: oISList){
