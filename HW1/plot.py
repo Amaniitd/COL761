@@ -1,21 +1,23 @@
 import sys, subprocess
 import matplotlib.pyplot as plt
-
 inpname = sys.argv[1]
 outputFile = sys.argv[2]
 
-sup_list = [90, 50, 25]
+sup_list = [90, 50, 25, 10, 5]
 apriori_list = []
 fp_list = []
 
+
+
 for x in sup_list:	
 	print("Running for support = " + str(x))
-	cmd_ap = "./run.o " + inpname + " " + str(x) + " -apriori"
-	result_ap = subprocess.check_output(cmd_ap)
-	result_ap = float(result_ap)
-	apriori_list.append(result_ap)
+	if (x > 15):
+		cmd_ap = "./run.o " + inpname + " " + str(x) + " -apriori"
+		result_ap = subprocess.check_output(cmd_ap, shell=True)
+		result_ap = float(result_ap)
+		apriori_list.append(result_ap)
 	cmd_fp = "./run.o " + inpname + " " + str(x) + " -fptree"
-	result_fp = subprocess.check_output(cmd_fp)
+	result_fp = subprocess.check_output(cmd_fp, shell=True)
 	result_fp = float(result_fp)
 	fp_list.append(result_fp)
 
