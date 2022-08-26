@@ -7,7 +7,7 @@ File Explained
 1. apriori.h : Header file in which we implemented apriori algorithm
 2. apriori.cpp : Accepts input file, support percent and outfile as argument and use apriori.h to generate frequent item set on transactions stored in input file. The frequent item set are saved in output file mentioned in the arguments.
 3. fptree.h : Header file in which we implemented fptree algorithm
-5. dp_plot.cpp : This program runs apriori/fptree algorithm on dataset as mentioned in then arguments
+5. dp_plot.cpp : This program runs apriori/fptree algorithm on dataset depending on the arguments
 4. fptree.cpp : Accepts input file, support percent and outfile as argument and use fptree.h to generate frequent item set on transactions stored in input file. The frequent item set are saved in output file mentioned in the arguments.
 5. install.sh : File to clone our assigment's github repository and unzip the content and change current directory to directory where our files are present and loading all the modules required to run our codes
 6. compile.sh : Compiling the cpp files 
