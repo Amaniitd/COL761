@@ -19,3 +19,6 @@ Everyone contributed equally in each part.
 1. Sohail Khan - 33%
 2. Aman Kumar - 33%
 3. Nitin Kumar - 33%
+
+Explaination For q4
+The apriori algorithm is slower than fptree algorithm because apriori scans the database at each iteration of candidate generation step whereas fptree algorithm access databse only once at the beginning. Apriori algorithm generates all candidates subsets of size (k+1) using frequent subsets of size (k) whereas in case of fptree we only generates frequent subsets. Unlike, apriori fptree doesn't need to scan database again to check if the itemset are frequent. All information can be derived from fptree.
