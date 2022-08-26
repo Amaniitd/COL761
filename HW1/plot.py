@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 inpname = sys.argv[1]
 outputFile = sys.argv[2]
 
-sup_list = [5,10,25,50,90]
+sup_list = [90, 50, 25]
 apriori_list = []
 fp_list = []
 
 for x in sup_list:	
+	print("Running for support = " + str(x))
 	cmd_ap = "./run.o " + inpname + " " + str(x) + " -apriori"
 	result_ap = subprocess.check_output(cmd_ap)
 	result_ap = float(result_ap)
