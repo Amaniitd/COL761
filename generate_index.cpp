@@ -2,6 +2,7 @@
 #include<string>
 #include<fstream>
 #include<vector>
+#include <string>
 #include<map>
 using namespace std;
 
@@ -14,7 +15,8 @@ void splitString(string line, char delimiter, vector<string> &v)
 
         if (line[i] == delimiter)
         {
-            v.push_back(temp);
+            if(temp!=" "&&temp.size()>0)
+                v.push_back(temp);
             temp = "";
         }
         else
@@ -22,22 +24,20 @@ void splitString(string line, char delimiter, vector<string> &v)
             temp.push_back(line[i]);
         }
     }
-    v.push_back(temp);
+    if(temp!=" "&&temp.size()>0)
+        v.push_back(temp);
 }
 
 
-void modify_dataset(string filename, string outputfilename){
+void generate_index(string filename, string outputfilename){
     int size = 0;
     fstream fi;
-    ofstream fo(outputfilename+"modified_dataset");
     fi.open(filename);
 
-    map<string, int> graphid;
-    int graphno = 0;
-    map<string,int> labelid;
-    int labelno = 0;
+    map<int, vector<int>> graphidlist;
+    int max_id = -1;
 
-    if (fi.is_open() && fo.is_open())
+    if (fi.is_open())
     {
         string line;
         while (std::getline(fi, line))
@@ -46,41 +46,36 @@ void modify_dataset(string filename, string outputfilename){
                 continue;
             }
 
-            if(line[0] == '#'){
-                line.erase(line.begin());
-                graphid[line] = graphno++;
-                fo << "t # "<<graphid[line]<<endl;
+            if(line[0] == 't'){
+                
+                vector<string> title;
+                splitString(line, ' ', title);
 
-                string temp;
-                std::getline(fi, temp);
+                // id of frequent graph
+                // cout<<title[2]<<endl;
+                int id = stoi(title[2]);
+                max_id = max(max_id, id);
 
-                int v = stoi(temp);
-                if(v<=1){
-                    cout<<v<<endl;
-                }
+                while(std::getline(fi, line) && line[0]!='x');
 
-                for(int i=0;i<v;++i){
-                    std::getline(fi, line);
-                    if(labelid.find(line)==labelid.end()){
-                        labelid[line] = labelno++;
+                line = line.substr(2);
+
+                vector<string> graph_id;
+                splitString(line, ' ', graph_id);
+
+                for(int i=0;i<graph_id.size();++i){
+                    
+                    // cout<<"print: "<<graph_id[i]<<endl;
+                    int id_contain = stoi(graph_id[i]);
+
+                    if(graphidlist.find(id_contain)==graphidlist.end()){
+                        graphidlist[id_contain] = vector<int>();
+                        graphidlist[id_contain].push_back(id);
                     }
-                    fo << "v "<<i<<" "<<labelid[line]<<endl;
+                    else{
+                        graphidlist[id_contain].push_back(id);
+                    }
                 }
-
-                std::getline(fi, temp);
-                int e = stoi(temp);
-
-                if(e<=1){
-                    cout<<e<<endl;
-                }
-
-                for(int i=0;i<e;++i){
-                    std::getline(fi, line);
-                    vector<string> a;
-                    splitString(line, ' ', a);
-                    fo << "e "<<a[0]<<" "<<a[1]<<" "<<a[2]<<endl;
-                }
-
 
             }
         
@@ -88,23 +83,34 @@ void modify_dataset(string filename, string outputfilename){
     }
 
     fi.close();
+
+    ofstream fo(outputfilename);
+
+
+    if (fo.is_open())
+    {
+        for(auto &v: graphidlist){
+            vector<int> hash(max_id+1, 0);
+            for(auto &id: v.second){
+                // cout<<"III = " <<id<<endl;
+                hash[id] = 1;
+            }
+            fo<<v.first;
+            for(int i=0;i<hash.size();++i){
+                fo<<' '<<hash[i];
+            }
+            fo<<endl;
+        }
+    }
+
     fo.close();
 
-    ofstream fo_g(outputfilename+"graphid_mapping");
-    for(auto itr: graphid){
-        fo_g<<itr.first<<" "<<itr.second<<endl;
-    }
-    fo_g.close();
 
-    ofstream fo_l(outputfilename+"labelid_mapping");
-    for(auto itr: labelid){
-        fo_l<<itr.first<<" "<<itr.second<<endl;
-    }
-    fo_l.close();
 
 }
 
 int main(){
     string filename = "./modified_dataset.fp";
-    modify_dataset(filename, "./");
+    string outputfile = "./features.txt";
+    generate_index(filename, outputfile);
 }
