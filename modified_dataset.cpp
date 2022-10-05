@@ -104,7 +104,7 @@ void modify_dataset(string filename, string outputfilename){
 
 }
 
-int main(){
-    string filename = "./molecules/Yeast/167.txt_graph";
+int main(int argc,char* argv[]){
+    string filename = argv[1];
     modify_dataset(filename, "./");
 }
