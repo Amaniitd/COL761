@@ -6,7 +6,7 @@ import time
 noOfGraphs = 0
 labels = {}
 currLabel = 0
-supportThreshold = [5, 10 , 25, 50, 95]
+supportThreshold = [5,10,25,50,95]
 gspanTime = []
 fsgTime = []
 gastonTime = []
