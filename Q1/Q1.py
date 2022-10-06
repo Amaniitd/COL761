@@ -60,7 +60,7 @@ def runGspan(support):
 def runFsg(support):
     print(f"Running fsg for support {support}")
     currentTime = time.time()
-    os.system(f"timeout 1h ./fsg -s {support/100} fsg_.txt" )
+    os.system(f"timeout 1h ./fsg -s {support} fsg_.txt" )
     return time.time() - currentTime
 
 def runGaston(support):
