@@ -66,8 +66,8 @@ def main():
             
             k_centers = new_center
 
-            prev_var = sum(variance_within_cluster)
-            new_var = sum(variance_within_cluster_next)
+            prev_var = sum(variance_within_cluster) / k
+            new_var = sum(variance_within_cluster_next) / k
             
 
             if abs(prev_var - new_var) < 1e-10:
