@@ -3,6 +3,13 @@ ___________________________
 
 Tools: gSpan, fsg, gaston
 
+supportThreshold = [5, 10, 25, 50, 95]
+gspanTime =        [2784.74, 792.33, 195.75, 69.71, 3.74]
+fsgTime =          [2723.3, 883.0, 242.6, 76.2, 1.6]
+gastonTime =       [102.25, 36.04, 12.03, 5.71, 0.69]
+
+(Time is in seconds)
+
 The trend observed:
 > The time taken is inversely proportional to the thershold
 > The time taken increases exponentially with decreasing the thershold
