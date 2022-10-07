@@ -1,0 +1,1 @@
+python3 ./Q3/kmeans.py $1 $2 $3
